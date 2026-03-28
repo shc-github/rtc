@@ -4,12 +4,12 @@ services:
     image: go-webrtc:latest
     container_name: webrtc-server
     ports:
-      - "8080:8080"  # 信令服务器 + Web 界面
-      - "8081:8081"  # SFU 服务器
+      - "9000:9000"  # 信令服务器 + Web 界面
+      - "9001:9001"  # SFU 服务器
     environment:
       # 公网地址 (修改为你的服务器公网IP或域名)
       - PUBLIC_HOST=192.168.31.230
-      - SIGNAL_PORT=8080
+      - SIGNAL_PORT=9000
       - SFU_PORT=8081
       - SFU_THRESHOLD=3
       # 如果使用反向代理或域名，设置以下变量

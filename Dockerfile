@@ -36,7 +36,7 @@ COPY --from=builder /sfu-server /app/sfu-server
 COPY web /app/web
 
 # 暴露端口
-EXPOSE 8080 8081
+EXPOSE 9000 9001
 
 # 启动脚本
 COPY docker-entrypoint.sh /app/
