@@ -78,12 +78,12 @@ docker-compose down
 ```yaml
 environment:
   - PUBLIC_HOST=your-server-ip-or-domain.com
-  - SIGNAL_PORT=8080
-  - SFU_PORT=8081
+  - SIGNAL_PORT=9000
+  - SFU_PORT=9001
   - SFU_THRESHOLD=3
 ```
 
-然后访问 `http://your-server-ip:8080`
+然后访问 `http://your-server-ip:9000`
 
 ### 本地开发
 
@@ -99,19 +99,19 @@ go mod download
 # 启动信令服务器
 go run cmd/signal-server/main.go
 
-# 访问 http://localhost:8080
+# 访问 http://localhost:9000
 ```
 
 ### 方式二：SFU 模式（多人会议）
 
 ```bash
 # 终端1：启动信令服务器（配置 SFU 地址）
-go run cmd/signal-server/main.go -sfu ws://localhost:8081/sfu -sfu-threshold 3
+go run cmd/signal-server/main.go -sfu ws://localhost:9001/sfu -sfu-threshold 3
 
 # 终端2：启动 SFU 服务器
-go run cmd/sfu-server/main.go -port 8081
+go run cmd/sfu-server/main.go -port 9001
 
-# 访问 http://localhost:8080
+# 访问 http://localhost:9000
 ```
 
 ### 命令行参数
@@ -120,7 +120,7 @@ go run cmd/sfu-server/main.go -port 8081
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `-addr` | `:8080` | 服务器监听地址 |
+| `-addr` | `:9000` | 服务器监听地址 |
 | `-sfu` | `""` | SFU 服务器 WebSocket URL |
 | `-sfu-threshold` | `3` | 切换到 SFU 模式的用户数阈值 |
 
@@ -128,8 +128,8 @@ go run cmd/sfu-server/main.go -port 8081
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `-port` | `8081` | SFU 服务器端口 |
-| `-signal` | `localhost:8080` | 信令服务器地址 |
+| `-port` | `9001` | SFU 服务器端口 |
+| `-signal` | `localhost:9000` | 信令服务器地址 |
 
 ## 架构说明
 
@@ -261,8 +261,8 @@ docker-compose down
 | 变量 | 默认值 | 说明 |
 |------|--------|------|
 | `PUBLIC_HOST` | `localhost` | 公网地址（服务器IP或域名） |
-| `SIGNAL_PORT` | `8080` | 信令服务器端口 |
-| `SFU_PORT` | `8081` | SFU 服务器端口 |
+| `SIGNAL_PORT` | `9000` | 信令服务器端口 |
+| `SFU_PORT` | `9001` | SFU 服务器端口 |
 | `SFU_THRESHOLD` | `3` | SFU 模式切换阈值 |
 | `SFU_PUBLIC_URL` | 自动生成 | SFU WebSocket URL |
 
@@ -274,7 +274,7 @@ server {
     server_name your-domain.com;
 
     location / {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://localhost:9000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -282,7 +282,7 @@ server {
     }
 
     location /ws {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://localhost:9000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

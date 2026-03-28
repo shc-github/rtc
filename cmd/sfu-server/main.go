@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	port       = flag.String("port", "8081", "SFU server port")
-	signalAddr = flag.String("signal", "localhost:8080", "Signal server address for integration")
+	port       = flag.String("port", "9001", "SFU server port")
+	signalAddr = flag.String("signal", "localhost:9000", "Signal server address for integration")
 )
 
 func main() {

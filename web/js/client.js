@@ -13,6 +13,7 @@ class WebRTCClient {
         this.sfuMode = false;
         this.sfuWS = null;
         this.sfuPC = null;
+        this.sfuConnecting = false;
         this.isMuted = false;
 
         // Callbacks
@@ -202,6 +203,21 @@ class WebRTCClient {
 
     // Create SFU PeerConnection
     async createSFUPeerConnection() {
+        // 防止并发调用
+        if (this.sfuConnecting) {
+            log('SFU connection already in progress', 'info');
+            return;
+        }
+        this.sfuConnecting = true;
+
+        try {
+            // 如果已有连接，先关闭
+            if (this.sfuPC) {
+                log('Closing existing SFU peer connection', 'info');
+                this.sfuPC.close();
+                this.sfuPC = null;
+            }
+
         const config = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -258,6 +274,9 @@ class WebRTCClient {
                 }
             }));
             log('Sent offer to SFU', 'info');
+        }
+        } finally {
+            this.sfuConnecting = false;
         }
     }
 

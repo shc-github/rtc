@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", ":8080", "Server address")
-	sfuURL := flag.String("sfu", "", "SFU server URL (e.g., ws://localhost:8081/sfu)")
+	addr := flag.String("addr", ":9000", "Server address")
+	sfuURL := flag.String("sfu", "", "SFU server URL (e.g., ws://localhost:9001/sfu)")
 	sfuThreshold := flag.Int("sfu-threshold", 3, "Number of users to switch to SFU mode")
 	flag.Parse()
 

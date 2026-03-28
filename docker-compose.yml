@@ -10,10 +10,10 @@ services:
       # 公网地址 (修改为你的服务器公网IP或域名)
       - PUBLIC_HOST=192.168.31.230
       - SIGNAL_PORT=9000
-      - SFU_PORT=8081
+      - SFU_PORT=9001
       - SFU_THRESHOLD=3
       # 如果使用反向代理或域名，设置以下变量
-      # - SFU_PUBLIC_URL=ws://your-domain.com:8081/sfu
+      # - SFU_PUBLIC_URL=ws://your-domain.com:9001/sfu
     restart: unless-stopped
     networks:
       - webrtc-network
