@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC 语音会话</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #666;
+        }
+        .btn-secondary:hover {
+            background: #e0e2e5;
+        }
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+        .btn-mute {
+            background: #faad14;
+            color: white;
+        }
+        .btn-mute:hover {
+            opacity: 0.9;
+        }
+        .btn-muted {
+            background: #8c8c8c;
+            color: white;
+        }
+        .btn-muted:hover {
+            opacity: 0.9;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+        .status-connected {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .status-disconnected {
+            background: #fff2f0;
+            color: #ff4d4f;
+            border: 1px solid #ffccc7;
+        }
+        .status-connecting {
+            background: #e6f7ff;
+            color: #1890ff;
+            border: 1px solid #91d5ff;
+        }
+        .user-list {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f0f2f5;
+            border-radius: 8px;
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+        .user-name {
+            font-size: 14px;
+            color: #333;
+        }
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .audio-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .audio-bars {
+            display: flex;
+            gap: 2px;
+            align-items: end;
+            height: 20px;
+        }
+        .audio-bar {
+            width: 4px;
+            background: #52c41a;
+            border-radius: 2px;
+            animation: audio-wave 0.5s ease-in-out infinite;
+        }
+        .audio-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .audio-bar:nth-child(2) { height: 12px; animation-delay: 0.1s; }
+        .audio-bar:nth-child(3) { height: 16px; animation-delay: 0.2s; }
+        .audio-bar:nth-child(4) { height: 10px; animation-delay: 0.3s; }
+        @keyframes audio-wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.5); }
+        }
+        .audio-bars.silent .audio-bar {
+            height: 4px;
+            animation: none;
+            background: #ccc;
+        }
+        .audio-bars.muted .audio-bar {
+            height: 4px;
+            animation: none;
+            background: #ff4d4f;
+        }
+        .log-panel {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin-bottom: 4px;
+        }
+        .log-entry.time {
+            color: #6a9955;
+        }
+        .log-entry.info {
+            color: #9cdcfe;
+        }
+        .log-entry.error {
+            color: #f14c4c;
+        }
+        .log-entry.success {
+            color: #4ec9b0;
+        }
+        .my-user-id {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        .mode-p2p {
+            font-size: 12px;
+            background: #52c41a;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+        .mode-sfu {
+            font-size: 12px;
+            background: #1890ff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WebRTC 语音会话</h1>
+            <div class="subtitle">基于 Go + Pion WebRTC 实现</div>
+        </div>
+
+        <!-- 连接设置 -->
+        <div class="panel" id="setup-panel">
+            <div class="panel-title">连接设置</div>
+            <div class="form-group">
+                <label>房间 ID</label>
+                <input type="text" id="room-id" placeholder="输入房间 ID（如：room-123）" value="room-test">
+            </div>
+            <div class="form-group">
+                <label>昵称（可选）</label>
+                <input type="text" id="nickname" placeholder="输入你的昵称">
+            </div>
+            <div class="form-group">
+                <label>服务器地址</label>
+                <input type="text" id="server-url" placeholder="WebSocket 服务器地址">
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="join-btn" onclick="joinRoom()">加入房间</button>
+            </div>
+            <div class="my-user-id hidden" id="my-user-id"></div>
+        </div>
+
+        <!-- 通话面板 -->
+        <div class="panel hidden" id="call-panel">
+            <div class="panel-title">通话状态 <span id="mode-indicator" class="mode-p2p">P2P 模式</span></div>
+            <div class="status status-disconnected" id="connection-status">
+                未连接
+            </div>
+            <div class="audio-controls">
+                <button class="btn btn-danger" id="leave-btn" onclick="leaveRoom()">离开房间</button>
+                <button class="btn btn-mute" id="mute-btn" onclick="toggleMute()">🎤 静音</button>
+                <div class="audio-indicator">
+                    <span>音频:</span>
+                    <div class="audio-bars" id="audio-bars">
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户列表 -->
+        <div class="panel hidden" id="users-panel">
+            <div class="panel-title">房间用户 (<span id="user-count">0</span>)</div>
+            <div class="user-list" id="user-list"></div>
+        </div>
+
+        <!-- 日志 -->
+        <div class="panel">
+            <div class="panel-title">日志</div>
+            <div class="log-panel" id="log-panel"></div>
+        </div>
+    </div>
+
+    <script src="js/client.js"></script>
+</body>
+</html>

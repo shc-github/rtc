@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.vscode
+.idea
+*.swp
+*.swo
+
+# Binary
+bin/
+*.exe
+
+# Test files
+*_test.go
+
+# Temporary files
+tmp/
+temp/
